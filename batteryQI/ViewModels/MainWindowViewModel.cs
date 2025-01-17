@@ -11,12 +11,20 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace batteryQI.ViewModels
 {
-    internal class MainWindowViewModel : ViewModelBases
+    internal partial class MainWindowViewModel : ViewModelBases
     {
         public MainWindowViewModel()
         {
 
         }
-    
+
+        // 클릭 이벤트 등록
+        [RelayCommand]
+        private void LinkDB()
+        {
+            DBlink x = new();
+            x.Connect(); // 링크
+        }
+
     }
 }
