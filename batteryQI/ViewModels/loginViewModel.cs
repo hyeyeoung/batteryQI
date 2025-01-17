@@ -28,26 +28,32 @@ namespace batteryQI.ViewModels
             DBlink DBConnection = new DBlink();
             DBConnection.Connect();
         }
-        
+
         [RelayCommand]
         private void Login(object obj)
         {
-            PasswordBox pw = obj as PasswordBox;
-
-            if (Manager.ManagerID == "manager1" && pw.Password == "1234")
+            if (obj is PasswordBox pw)
             {
-                MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (Manager.ManagerID == "manager1" && pw.Password == "1234")
+                {
+                    MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                var mainWindow = new MainWindow();
-                mainWindow.Show();
+                    var mainWindow = new MainWindow();
+                    mainWindow.Show();
 
-                // 현재 창 닫기
-                Application.Current.Windows[0]?.Close();
+                    // 현재 창 닫기
+                    Application.Current.Windows[0]?.Close();
+                }
+                else
+                {
+                    MessageBox.Show("아이디 및 비밀번호를 확인해 주세요", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             else
             {
-                MessageBox.Show("아이디 및 비밀번호를 확인해 주세요", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("올바른 PasswordBox가 전달되지 않았습니다.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
     }
 }
