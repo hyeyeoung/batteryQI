@@ -17,6 +17,7 @@ namespace batteryQI.Models
         private int _workAmount; // 관리자에게 할당된 작업량
         static Manager manager; // singleton
 
+        private Manager() { } // singleton을 위반하는 상황 방지를 위해 private 수식
         public static Manager Instance()
         {
             if (manager == null)

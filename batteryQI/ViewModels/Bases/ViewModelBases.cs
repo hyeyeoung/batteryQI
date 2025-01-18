@@ -16,8 +16,12 @@ namespace batteryQI.ViewModels.Bases
     {
         public ViewModelBases()
         {
-            // Manager 객체 생성. singltoon 구조이기 때문에 Login에서 생성된 객체의 참조
+            // singltoon 구조이기 때문에 기존에 생성된 객체들을 참조
             _manager = Manager.Instance();
+            _maufactureList = Manufacture.Instance();
+
+            DBConnection = DBlink.Instance();
+            DBConnection.Connect();
         }
         // 클릭 이벤트 등록
         [RelayCommand]
@@ -51,5 +55,6 @@ namespace batteryQI.ViewModels.Bases
                 }
             }
         }
+
     }
 }

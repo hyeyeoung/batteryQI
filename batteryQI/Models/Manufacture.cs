@@ -11,10 +11,10 @@ namespace batteryQI.Models
     // 제조사 목록 클래스
     internal class Manufacture : ObservableObject
     {
-        private string _manufacId; // 제조사 ID
-        private string _manufacName; // 제조사 이름
-
-        public string ManufacId
+        private List<int> _manufacId; // 제조사 ID
+        private List<string> _manufacName; // 제조사 이름
+        static Manufacture manufactureList; // singleton 탬플릿. 제조사 목록이 여러개 있을 필요 X.
+        public List<int> ManufacId
         {
             get { return _manufacId; }
             set
@@ -22,8 +22,7 @@ namespace batteryQI.Models
                 SetProperty(ref _manufacId, value);
             }
         }
-
-        public string ManufacName
+        public List<string> ManufacName
         {
             get { return _manufacName; }
             set
@@ -31,5 +30,16 @@ namespace batteryQI.Models
                 SetProperty(ref _manufacName, value);
             }
         }
+
+        private Manufacture() { }
+        public static Manufacture Instance()
+        {
+            if (manufactureList == null)
+            {
+                manufactureList = new Manufacture();
+            }
+            return manufactureList;
+        }
+
     }
 }

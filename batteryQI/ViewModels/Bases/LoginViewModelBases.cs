@@ -18,49 +18,46 @@ namespace batteryQI.ViewModels.Bases
     {
         public LoginViewModelBases()
         {
-            // Manager 객체 생성
+            // Manager 객체 생성(관리자)
             _manager = Manager.Instance();
+            // Manufacture 객체 생성(제조사 리스트)
+            _maufactureList = Manufacture.Instance();
             // 로그인 창 열면서 DB 연결
             DBConnection = DBlink.Instance();
             DBConnection.Connect();
         }
 
         [RelayCommand]
-
-        //private void Login(object obj)
-        //{
-        //    // DB가 제대로 연결되어 있고 PassBox가 안 비어져 있으면 수행
-        //    if (DBConnection.ConnectOk() && obj is PasswordBox pw)
-        //    {
-        //        List<Dictionary<string, object>> login = DBConnection.Select($"SELECT managerId, managerPw FROM manager WHERE managerId='{Manager.ManagerID}';");
-        //        if (login.Count != 0 && (pw.Password == login[0]["managerPw"].ToString()))
-        //        {
-        //            MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-        //            var mainWindow = new MainWindow();
-        //            mainWindow.Show();
-
-        //            // 현재 창 닫기
-        //            Application.Current.Windows[0]?.Close();
-        //        }
-        //        else
-        //        {
-        //            MessageBox.Show("아이디 및 비밀번호를 확인해 주세요", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //    }
-        //}
-
         private void Login(object obj) // 기존 로그인 함수에 workAmount 초기화 추가
         {
             // DB가 제대로 연결되어 있고 PassBox가 안 비어져 있으면 수행
             if (DBConnection.ConnectOk() && obj is PasswordBox pw)
             {
+                // 관리자 객체 데이터 가져오기
                 List<Dictionary<string, object>> login = DBConnection.Select($"SELECT managerId, managerPw, workAmount FROM manager WHERE managerId='{Manager.ManagerID}';");
+
+                // 제조사 리스트 객체 데이터 가져오기
+                List<Dictionary<string, object>> mfList = DBConnection.Select($"SELECT manufacId, manufacName FROM manufacture;");
+
                 if (login.Count != 0 && (pw.Password == login[0]["managerPw"].ToString()))
                 {
                     // Manager 객체 속성에 데이터 초기화
                     Manager.ManagerPW = pw.Password;
                     Manager.WorkAmount = Convert.ToInt32(login[0]["workAmount"]);
+
+                    // Manufacture 객체 속성에 데이터 초기화. 현재는 DB가 비어있어 임의의 리터럴로 초기화.
+                    //foreach (var row in mfList)
+                    //{
+                    //    // manufacId와 manufacName 추출 및 변환
+                    //    if (row.ContainsKey("manufacId") && row.ContainsKey("manufacName"))
+                    //    {
+                    //        ManufactureList.ManufacId.Add(Convert.ToInt32(row["manufacId"]));
+                    //        ManufactureList.ManufacName.Add(row["manufacName"].ToString());
+                    //    }
+                    //}
+                    ManufactureList.ManufacId = new List<int> { 1, 2, 3, 4, 5, 6, 7 };
+                    ManufactureList.ManufacName = new List<string>
+                    { "에너자이저", "듀라셀", "삼성", "LG", "SK", "파나소닉", "소니" };
 
                     // 로그인 완료 메시지
                     MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);

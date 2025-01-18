@@ -12,7 +12,7 @@ namespace batteryQI.ViewModels.Bases
     internal partial class AllModelBase : ObservableObject
     {
         protected Manager _manager;
-        protected Manufacture _maufacture;
+        protected Manufacture _maufactureList;
         protected Battery _battery;
         protected DBlink DBConnection;
         public Manager Manager
@@ -25,10 +25,10 @@ namespace batteryQI.ViewModels.Bases
             get => _battery;
             set => SetProperty(ref _battery, value);
         }
-        public Manufacture Manufacture
+        public Manufacture ManufactureList
         {
-            get => _maufacture;
-            set => SetProperty(ref _maufacture, value);
+            get => _maufactureList;
+            set => SetProperty(ref _maufactureList, value);
         }
     }
 }
