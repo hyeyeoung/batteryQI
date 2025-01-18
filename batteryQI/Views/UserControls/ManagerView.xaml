@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="batteryQI.UserControls.ManagerView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Margin="10 70">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0 0 0 10">
+            <TextBlock Text="월 검사 할당량: " VerticalAlignment="Center" Margin="0 0 5 0" />
+            <TextBox x:Name="InspectionLimitBox" Width="150" VerticalAlignment="Center" Margin="0 0 5 0" />
+            <TextBlock Text="건" VerticalAlignment="Center" Margin="0 0 10 0" />
+            <Button Content="저장" Width="60" Height="30" VerticalAlignment="Center" Command = "{Binding NewWorkAmountSetCommand}" CommandParameter="{Binding ElementName=InspectionLimitBox}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0 0 0 5">
+                <TextBlock Text="제조사 리스트" FontWeight="Bold" VerticalAlignment="Center" />
+                <Button Content="+" Width="30" Height="30" VerticalAlignment="Center" Margin="5 0 0 0" Command = "{Binding AddNewManufactureCommand}" CommandParameter="{Binding ElementName=ManufacturerListBox}" />
+            </StackPanel>
+            <!--AllModelBase에 선언된 ManufactureList 프로퍼티의 제조사 이름 프로퍼티와 바인딩하려는데 안된다. Why? -> OnPropertyChanged로 데이터 변경을 알려야한다!-->
+            <ListBox x:Name="ManufacturerListBox" ItemsSource="{Binding ManufactureList.ManufacName}" Grid.Row="1" Margin="0 5 0 0">
+                <!--<ListBoxItem>에너자이저</ListBoxItem>
+                <ListBoxItem>듀라셀</ListBoxItem>
+                <ListBoxItem>삼성</ListBoxItem>
+                <ListBoxItem>LG</ListBoxItem>
+                <ListBoxItem>SK</ListBoxItem>
+                <ListBoxItem>파나소닉</ListBoxItem>
+                <ListBoxItem>소니</ListBoxItem>-->
+            </ListBox>
+        </Grid>
+    </Grid>
+</UserControl>

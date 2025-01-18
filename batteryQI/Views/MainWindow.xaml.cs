@@ -8,8 +8,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using batteryQI.UserControls;
+using batteryQI.ViewModels;
+using Microsoft.Win32;
 
-namespace batteryQI
+namespace batteryQI.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -19,6 +22,9 @@ namespace batteryQI
         public MainWindow()
         {
             InitializeComponent();
+            var viewModel = new MainWindowViewModel();
+            viewModel.CloseAction = () => this.Close();
+            DataContext = viewModel;
         }
     }
 }
