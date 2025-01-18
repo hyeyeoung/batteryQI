@@ -25,8 +25,11 @@ namespace batteryQI.UserControls
     {
         public ManagerView()
         {
-            InitializeComponent();
-            this.DataContext = new MainWindowViewModel();
+            if (this.DataContext == null)
+            {
+                InitializeComponent();
+                this.DataContext = new MainWindowViewModel();
+            }
         }
 
     }

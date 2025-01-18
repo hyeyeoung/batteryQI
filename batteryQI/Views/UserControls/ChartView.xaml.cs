@@ -26,7 +26,8 @@ namespace batteryQI.UserControls
     {
         public ChartView()
         {
-            InitializeComponent();
+            if (this.DataContext == null)
+                InitializeComponent();
         }
 
       

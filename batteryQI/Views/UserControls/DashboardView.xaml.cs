@@ -24,7 +24,8 @@ namespace batteryQI.UserControls
     {
         public DashboardView()
         {
-            InitializeComponent();
+            if (this.DataContext == null)
+                InitializeComponent();
         }
 
         private void ImageSelectButton_Click(object sender, RoutedEventArgs e)
