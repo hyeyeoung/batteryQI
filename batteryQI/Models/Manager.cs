@@ -12,12 +12,14 @@ namespace batteryQI.Models
     // 싱글톤 패턴
     internal class Manager : ObservableObject
     {
-        private string _managerID;
-        private string _managerPW;
+        private string _managerID; // 관리자 ID
+        private string _managerPW; // 관리자 PW
+        private int _workAmount; // 관리자에게 할당된 작업량
         static Manager manager; // singleton
+
         public static Manager Instance()
         {
-            if(manager == null)
+            if (manager == null)
             {
                 manager = new Manager(); // Manager 객체 생성
             }
@@ -40,5 +42,38 @@ namespace batteryQI.Models
             }
         }
 
+        public int WorkAmount
+        {
+            get { return _workAmount; }
+            set
+            {
+                SetProperty(ref _workAmount, value);
+            }
+        }
+
+        public int ReturnTotalWorkAmount()
+        {
+            return WorkAmount;
+        }
+
+        public int ReturnCompletedAmount()
+        {
+            return 0; // 임시
+        }
+
+        public void EditWorkAmount(int newAmount)
+        {
+            WorkAmount = newAmount;
+        }
+
+        public void InspectBattery()
+        {
+
+        }
+
+        public void AddDBBetteryCompany(string newCompany)
+        {
+
+        }
     }
 }

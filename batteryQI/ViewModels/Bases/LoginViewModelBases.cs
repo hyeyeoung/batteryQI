@@ -34,14 +34,42 @@ namespace batteryQI.ViewModels.Bases
 
         [RelayCommand]
 
-        private void Login(object obj)
+        //private void Login(object obj)
+        //{
+        //    // DB가 제대로 연결되어 있고 PassBox가 안 비어져 있으면 수행
+        //    if (DBConnection.ConnectOk() && obj is PasswordBox pw)
+        //    {
+        //        List<Dictionary<string, object>> login = DBConnection.Select($"SELECT managerId, managerPw FROM manager WHERE managerId='{Manager.ManagerID}';");
+        //        if (login.Count != 0 && (pw.Password == login[0]["managerPw"].ToString()))
+        //        {
+        //            MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+        //            var mainWindow = new MainWindow();
+        //            mainWindow.Show();
+
+        //            // 현재 창 닫기
+        //            Application.Current.Windows[0]?.Close();
+        //        }
+        //        else
+        //        {
+        //            MessageBox.Show("아이디 및 비밀번호를 확인해 주세요", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        }
+        //    }
+        //}
+
+        private void Login(object obj) // 기존 로그인 함수에 workAmount 초기화 추가
         {
             // DB가 제대로 연결되어 있고 PassBox가 안 비어져 있으면 수행
             if (DBConnection.ConnectOk() && obj is PasswordBox pw)
             {
-                List<Dictionary<string, object>> login = DBConnection.Select($"SELECT managerId, managerPw FROM manager WHERE managerId='{Manager.ManagerID}';");
+                List<Dictionary<string, object>> login = DBConnection.Select($"SELECT managerId, managerPw, workAmount FROM manager WHERE managerId='{Manager.ManagerID}';");
                 if (login.Count != 0 && (pw.Password == login[0]["managerPw"].ToString()))
                 {
+                    // Manager 객체 속성에 데이터 초기화
+                    Manager.ManagerPW = login[0]["managerPw"].ToString();
+                    Manager.WorkAmount = Convert.ToInt32(login[0]["workAmount"]);
+
+                    // 로그인 완료 메시지
                     MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
                     var mainWindow = new MainWindow();
