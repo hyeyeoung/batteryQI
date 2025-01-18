@@ -29,11 +29,5 @@ namespace batteryQI.UserControls
             this.DataContext = new MainWindowViewModel();
         }
 
-
-
-        private void AddManufacturerButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

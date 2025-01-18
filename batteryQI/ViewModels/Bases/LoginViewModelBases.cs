@@ -41,23 +41,9 @@ namespace batteryQI.ViewModels.Bases
 
                 if (login.Count != 0 && (pw.Password == login[0]["managerPw"].ToString()))
                 {
-                    // Manager 객체 속성에 데이터 초기화
+                    // Manager 객체 속성에 데이터 초기화. 
                     Manager.ManagerPW = pw.Password;
                     Manager.WorkAmount = Convert.ToInt32(login[0]["workAmount"]);
-
-                    // Manufacture 객체 속성에 데이터 초기화. 현재는 DB가 비어있어 임의의 리터럴로 초기화.
-                    //foreach (var row in mfList)
-                    //{
-                    //    // manufacId와 manufacName 추출 및 변환
-                    //    if (row.ContainsKey("manufacId") && row.ContainsKey("manufacName"))
-                    //    {
-                    //        ManufactureList.ManufacId.Add(Convert.ToInt32(row["manufacId"]));
-                    //        ManufactureList.ManufacName.Add(row["manufacName"].ToString());
-                    //    }
-                    //}
-                    ManufactureList.ManufacId = new List<int> { 1, 2, 3, 4, 5, 6, 7 };
-                    ManufactureList.ManufacName = new List<string>
-                    { "에너자이저", "듀라셀", "삼성", "LG", "SK", "파나소닉", "소니" };
 
                     // 로그인 완료 메시지
                     MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);

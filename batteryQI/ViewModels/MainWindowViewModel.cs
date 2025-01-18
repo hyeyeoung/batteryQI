@@ -10,6 +10,7 @@ using batteryQI.ViewModels.Bases;
 using CommunityToolkit.Mvvm.Input;
 using batteryQI.UserControls;
 using batteryQI.Views;
+using System.Windows.Controls;
 
 namespace batteryQI.ViewModels
 {
@@ -25,9 +26,9 @@ namespace batteryQI.ViewModels
         public MainWindowViewModel()
         {
             // 초기 화면 설정
-            CurrentPage = new DashboardView();    
+            CurrentPage = new DashboardView();
         }
-        
+
         [RelayCommand]
         private void HomeButton()
         {
@@ -53,7 +54,5 @@ namespace batteryQI.ViewModels
         {
             CloseAction?.Invoke();
         }
-
-
     }
 }
