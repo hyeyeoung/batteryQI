@@ -1,5 +1,8 @@
-﻿using System;
+﻿using batteryQI.ViewModels;
+using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,12 +26,10 @@ namespace batteryQI.UserControls
         public ManagerView()
         {
             InitializeComponent();
+            this.DataContext = new MainWindowViewModel();
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
 
-        }
 
         private void AddManufacturerButton_Click(object sender, RoutedEventArgs e)
         {

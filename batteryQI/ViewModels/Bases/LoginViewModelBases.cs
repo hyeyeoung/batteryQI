@@ -14,15 +14,8 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace batteryQI.ViewModels.Bases
 {
-    internal partial class LoginViewModelBases : ObservableObject
+    internal partial class LoginViewModelBases : AllModelBase
     {
-        private Manager _manager;
-        private DBlink DBConnection;
-        public Manager Manager
-        {
-            get => _manager;
-            set => SetProperty(ref _manager, value);
-        }
         public LoginViewModelBases()
         {
             // Manager 객체 생성
@@ -66,7 +59,7 @@ namespace batteryQI.ViewModels.Bases
                 if (login.Count != 0 && (pw.Password == login[0]["managerPw"].ToString()))
                 {
                     // Manager 객체 속성에 데이터 초기화
-                    Manager.ManagerPW = login[0]["managerPw"].ToString();
+                    Manager.ManagerPW = pw.Password;
                     Manager.WorkAmount = Convert.ToInt32(login[0]["workAmount"]);
 
                     // 로그인 완료 메시지
