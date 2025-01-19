@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace batteryQI.ViewModels.Bases
 {
     internal partial class LoginViewModelBases : AllModelBase
     {
+
         public LoginViewModelBases()
         {
             // Manager 객체 생성(관리자)
@@ -85,9 +87,11 @@ namespace batteryQI.ViewModels.Bases
             ManufactureList.ManufacId = new List<int> { 1, 2, 3, 4, 5, 6, 7 };
             ManufactureList.ManufacName = new List<string>
                     { "에너자이저", "듀라셀", "삼성", "LG", "SK", "파나소닉", "소니" };
+        }
 
-            // 데이터 변경을 알리기 위해 속성 갱신 알림.
-            OnPropertyChanged(nameof(ManufactureList));
+        private void InitializeBatteryInfo()
+        {
+            
         }
     }
 }

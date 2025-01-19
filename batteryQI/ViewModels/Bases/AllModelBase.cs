@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,17 +19,32 @@ namespace batteryQI.ViewModels.Bases
         public Manager Manager
         {
             get => _manager;
-            set => SetProperty(ref _manager, value);
+            set { _manager = value; }
         }
         public Battery Battery
         {
             get => _battery;
-            set => SetProperty(ref _battery, value);
+            set { _battery = value; }
         }
         public Manufacture ManufactureList
         {
             get => _manufactureList;
-            set => SetProperty(ref _manufactureList, value);
+            set
+            {
+                _manufactureList = value;
+                //OnPropertyChanged("ManufactureList");
+            }
         }
+
+        //// View Property Binding 방법 2
+        //public event PropertyChangedEventHandler PropertyChanged;
+        //protected void OnPropertyChanged(string name)
+        //{
+        //    PropertyChangedEventHandler handler = PropertyChanged;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new PropertyChangedEventArgs(name));
+        //    }
+        //}
     }
 }

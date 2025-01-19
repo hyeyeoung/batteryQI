@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using batteryQI.Models;
 using batteryQI.Views;
 using System.Windows.Controls;
+using System.ComponentModel;
 
 namespace batteryQI.ViewModels.Bases
 {
@@ -26,7 +27,7 @@ namespace batteryQI.ViewModels.Bases
         [RelayCommand]
         private void LinkDB()
         {
-            DBlink x = new();
+            DBlink x = DBlink.Instance();
             x.Connect(); // 링크
         }
 
@@ -63,8 +64,16 @@ namespace batteryQI.ViewModels.Bases
             ManufactureList.ManufacName.Add("도쿄 일렉트론");
             MessageBox.Show($"새로운 제조사가 추가되었습니다.\r\n제조사 이름: {ManufactureList.ManufacName[^1]}\r\n제조사 ID: {ManufactureList.ManufacId[^1]}",
                         "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            OnPropertyChanged(nameof(ManufactureList));
+            //OnPropertyChanged(nameof(ManufactureList));
             // 이건 또 추가된게 ListBox에 적용되지 않음(view에 미출력). 원인이 뭘까?
+        }
+        #endregion
+
+        #region DashboardView 커멘드
+        [RelayCommand]
+        private void ImageSelectButton()
+        {
+
         }
         #endregion
     }
