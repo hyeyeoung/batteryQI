@@ -27,14 +27,7 @@
                 <Button Content="+" Width="30" Height="30" VerticalAlignment="Center" Margin="5 0 0 0" Command="{Binding ManufactInsertCommand}" />
             </StackPanel>
             <!--AllModelBase에 선언된 ManufactureList 프로퍼티의 제조사 이름 프로퍼티와 바인딩하려는데 안된다. Why?-->
-            <ListBox x:Name="ManufacturerListBox" ItemsSource="{Binding ManufacName, UpdateSourceTrigger=PropertyChanged }" Grid.Row="1" Margin="0 5 0 0">
-                <!--<ListBoxItem>에너자이저</ListBoxItem>
-                <ListBoxItem>듀라셀</ListBoxItem>
-                <ListBoxItem>삼성</ListBoxItem>
-                <ListBoxItem>LG</ListBoxItem>
-                <ListBoxItem>SK</ListBoxItem>
-                <ListBoxItem>파나소닉</ListBoxItem>
-                <ListBoxItem>소니</ListBoxItem>-->
+            <ListBox x:Name="ManufacturerListBox" ItemsSource="{Binding ManufacDict.Keys, UpdateSourceTrigger=PropertyChanged }" Grid.Row="1" Margin="0 5 0 0">
             </ListBox>
         </Grid>
     </Grid>

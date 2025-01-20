@@ -75,12 +75,15 @@ namespace batteryQI.ViewModels
             // 제조사 인풋
             try
             {
-                if (DBConnection.ConnectOk())
+                if (ManufacName.Length > 0 && DBConnection.ConnectOk())
                 {
-                    DBConnection.Insert($"INSERT INTO manufacture (manufacId, manufacName) VALUES(0, '{ManufacName}');");
-                    _manufacDict.Clear();
-                    getManafactureNameID();
-                    MessageBox.Show("완료");
+                    if (MessageBox.Show($"추가하시려는 제조사가 다음이 맞습니까?\r\n{ManufacName}", "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        DBConnection.Insert($"INSERT INTO manufacture (manufacId, manufacName) VALUES(0, '{ManufacName}');");
+                        _manufacDict.Clear();
+                        getManafactureNameID();
+                        MessageBox.Show($"새로운 제조사가 추가되었습니다.\r\n{ManufacName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
             }
             catch
