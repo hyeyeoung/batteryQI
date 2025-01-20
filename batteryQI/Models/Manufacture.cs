@@ -2,6 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace batteryQI.Models
             set
             {
                 SetProperty(ref _manufacName, value);
+                //OnPropertyChanged("ManufacName"); // 프로퍼티 변경 알림
             }
         }
 
@@ -41,5 +43,15 @@ namespace batteryQI.Models
             return manufactureList;
         }
 
+        //// View Property Binding 1단계
+        //public event PropertyChangedEventHandler PropertyChanged;
+        //protected void OnPropertyChanged(string propertyName)
+        //{
+        //    PropertyChangedEventHandler handler = PropertyChanged;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new PropertyChangedEventArgs(propertyName));
+        //    }
+        //}
     }
 }

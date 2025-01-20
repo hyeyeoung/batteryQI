@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using batteryQI.ViewModels;
 using batteryQI.Views;
 using Microsoft.Win32;
 
@@ -25,6 +26,7 @@ namespace batteryQI.UserControls
         public DashboardView()
         {
             InitializeComponent();
+            //this.DataContext = new MainWindowViewModel();
         }
 
         private void ImageSelectButton_Click(object sender, RoutedEventArgs e)

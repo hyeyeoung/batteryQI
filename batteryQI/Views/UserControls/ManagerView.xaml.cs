@@ -25,8 +25,10 @@ namespace batteryQI.UserControls
     {
         public ManagerView()
         {
+
             InitializeComponent();
-            this.DataContext = new MainWindowViewModel();
+            // Model 프로퍼티를 View에 Binding을 시도 방법 1
+            //this.DataContext = new MainWindowViewModel();
         }
 
     }
