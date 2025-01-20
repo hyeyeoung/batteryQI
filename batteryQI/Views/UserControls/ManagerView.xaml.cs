@@ -16,7 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace batteryQI.UserControls
+namespace batteryQI.Views.UserControls
 {
     /// <summary>
     /// Interaction logic for ManagerPage.xaml
@@ -25,11 +25,13 @@ namespace batteryQI.UserControls
     {
         public ManagerView()
         {
-
             InitializeComponent();
-            // Model 프로퍼티를 View에 Binding을 시도 방법 1
-            //this.DataContext = new MainWindowViewModel();
+            this.DataContext = new ManagerViewModel();
         }
 
+        private void AddManufacturerButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
