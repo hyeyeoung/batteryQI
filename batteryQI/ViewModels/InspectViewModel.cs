@@ -25,6 +25,11 @@ namespace batteryQI.ViewModels
         private Battery _battery;
         private DBlink DBConnection;
 
+        // 검사 진행률(ProgressBar) 필드
+        private int _totalWorkAmount;
+        private int _completedWorkAmount;
+        private int _workProgress;
+
         public IList<string>? ManufacList
         {
             get => _manufacList;
@@ -47,6 +52,22 @@ namespace batteryQI.ViewModels
             get => _battery;
             set => SetProperty(ref _battery, value);
         }
+        public int TotalWorkAmount
+        {
+            get => _totalWorkAmount;
+            set => SetProperty(ref _totalWorkAmount, value);
+        }
+        public int CompletedWorkAmount
+        {
+            get => _completedWorkAmount;
+            set => SetProperty(ref _completedWorkAmount, value);
+        }
+        public int WorkProgress
+        {
+            get => _workProgress;
+            set => SetProperty(ref _workProgress, value);
+        }
+
         public InspectViewModel()
         {
             // Manager 객체 생성
