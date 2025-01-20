@@ -13,8 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using batteryQI.Views;
+using batteryQI.ViewModels;
 
-namespace batteryQI.UserControls
+namespace batteryQI.Views.UserControls
 {
     /// <summary>
     /// Interaction logic for ErrorReason.xaml
@@ -27,6 +28,7 @@ namespace batteryQI.UserControls
         public ErrorReason()
         {
             InitializeComponent();
+            this.DataContext = new InspectViewModel();
         }
 
         //private void ErrorConfirmButton_Click(object sender, RoutedEventArgs e)

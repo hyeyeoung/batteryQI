@@ -8,9 +8,10 @@ using System.Windows;
 using batteryQI.Models;
 using batteryQI.ViewModels.Bases;
 using CommunityToolkit.Mvvm.Input;
-using batteryQI.UserControls;
+using batteryQI.Views.UserControls;
 using batteryQI.Views;
 using System.Windows.Controls;
+
 
 namespace batteryQI.ViewModels
 {
@@ -23,10 +24,12 @@ namespace batteryQI.ViewModels
             set => SetProperty(ref _currentPage, value);
         }
 
+        public Action? CloseAction { get; set; }
+
         public MainWindowViewModel()
         {
             // 초기 화면 설정
-            CurrentPage = new DashboardView();
+            _currentPage = new DashboardView();
         }
 
         [RelayCommand]
@@ -46,8 +49,6 @@ namespace batteryQI.ViewModels
         {
             CurrentPage = new ManagerView();
         }
-
-        public Action CloseAction { get; set; }
 
         [RelayCommand]
         private void ExitButton()

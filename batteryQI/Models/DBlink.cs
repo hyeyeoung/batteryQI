@@ -36,6 +36,7 @@ namespace batteryQI.Models
             }
             return staticDBlink;
         }
+        // -----------
         private void setDBLink()
         {
             string relativePath = @".\Models\DB.txt";
@@ -51,7 +52,7 @@ namespace batteryQI.Models
         public void Connect()
         {
             this.setDBLink();
-            string myConnection = "Server="+_server + ";Port=" + _port + ";Database=" + _dbName + ";User Id = " + _dbId + ";Password = " + _dbPw;
+            string myConnection = "Server="+_server + ";Port=" + _port + ";Database=" + _dbName + ";User Id = " + _dbId + ";Password = " + _dbPw + ";CharSet=utf8;";
             try
             {
                 connection = new MySqlConnection(myConnection);
