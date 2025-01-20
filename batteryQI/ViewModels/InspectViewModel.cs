@@ -26,8 +26,8 @@ namespace batteryQI.ViewModels
         private DBlink DBConnection;
 
         // 검사 진행률(ProgressBar) 필드
-        private int _totalWorkAmount;
-        private int _completedWorkAmount;
+        private int _totalWorkAmount = Manager.Instance().WorkAmount; // 다른 ViewModel에 구현된 객체의 프로퍼티값 get
+        static private int _completedWorkAmount = 0; // 창 전환 등 페이지 초기화 시에도 저장 유지 되도록 정적 속성 부여
         private int _workProgress;
 
         public IList<string>? ManufacList
@@ -52,15 +52,20 @@ namespace batteryQI.ViewModels
             get => _battery;
             set => SetProperty(ref _battery, value);
         }
+        // ----------------
         public int TotalWorkAmount
         {
             get => _totalWorkAmount;
-            set => SetProperty(ref _totalWorkAmount, value);
+            set 
+            { 
+                SetProperty(ref _totalWorkAmount, value); 
+                UpdateWorkProgress(); // 총, 완료 작업량 변경시 연관된 진행률 프로퍼티가 자동적으로 바뀌도록 구현
+            }
         }
         public int CompletedWorkAmount
         {
             get => _completedWorkAmount;
-            set => SetProperty(ref _completedWorkAmount, value);
+            set { SetProperty(ref _completedWorkAmount, value); UpdateWorkProgress(); }
         }
         public int WorkProgress
         {
@@ -77,6 +82,7 @@ namespace batteryQI.ViewModels
             DBConnection.Connect();
 
             getManafactureNameID();
+            UpdateWorkProgress();
         }
 
         // --------------------------------------------
@@ -104,6 +110,14 @@ namespace batteryQI.ViewModels
                 _manufacList.Add(Name);
                 ManufacDict.Add(Name, ID);
             }
+        }
+
+        private void UpdateWorkProgress() // 작업 진행률 프로퍼티 업데이트
+        {
+            if (WorkProgress < 100)
+                WorkProgress = 100 * CompletedWorkAmount / TotalWorkAmount;
+            else
+                WorkProgress = 100;
         }
 
         // --------------------------------------------
@@ -135,6 +149,8 @@ namespace batteryQI.ViewModels
                 // 정상 불량 판단 페이지로 넘어가게
                 var inspectionImage = new InspectionImage();
                 inspectionImage.ShowDialog();
+
+                CompletedWorkAmount++; // 작업 완료 횟수 추가
             }
             else
             {

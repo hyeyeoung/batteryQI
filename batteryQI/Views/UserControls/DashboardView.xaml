@@ -112,12 +112,12 @@
                     <StackPanel Orientation="Vertical">
                         <TextBlock Margin="10" Text="검사 진행률" FontSize="17" Foreground="white" FontWeight="SemiBold" />
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Margin="20 0 0 0" Text="할당량: "/>
-                            <TextBlock Margin="20 0 0 0" Text="검사완료: "/>
-                            <TextBlock Margin="20 0 0 0" Text="검사진행률: "/>
+                            <TextBlock Margin="20 0 0 0" Text="{Binding TotalWorkAmount, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='총 작업량: {0}'}" />
+                            <TextBlock Margin="20 0 0 0" Text="{Binding CompletedWorkAmount, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='완료 작업량: {0}'}"/>
+                            <TextBlock Margin="20 0 0 0" Text="{Binding WorkProgress, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='작업 진행률: {0}%'}"/>
                         </StackPanel>
 
-                        <ProgressBar Margin="20 10 20 0" Height="20" Value="20" Maximum="100" />
+                        <ProgressBar Margin="20 10 20 0" Height="20" Value="{Binding WorkProgress}" Maximum="100" />
                     </StackPanel>
                 </Grid>
             </Border>
