@@ -14,9 +14,9 @@
 
         <!-- Monthly Inspection Allocation -->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="-55,0,55,0">
-            <TextBlock Text="월 검사 할당량: " VerticalAlignment="Center" Margin="0 0 5 0" />
-            <TextBox Text="{Binding Manager.WorkAmount, UpdateSourceTrigger=PropertyChanged}"
-                     x:Name="InspectionLimitBox" Width="150" VerticalAlignment="Center" Margin="0 0 5 0" />
+            <TextBlock Text="월 검사 할당량: " FontWeight="Bold" VerticalAlignment="Center" Margin="0 0 5 0" />
+            <TextBox Text="{Binding NewWorkAmount, UpdateSourceTrigger=LostFocus}"
+                     x:Name="InspectionLimitBox" Width="150" VerticalAlignment="Center" Margin="0 0 5 0" TextChanged="InspectionLimitBox_TextChanged" />
             <TextBlock Text="건" VerticalAlignment="Center" Margin="0 0 10 0" />
             <Button Content="저장"
                     Width="60" Height="30"
@@ -47,8 +47,8 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{Binding Value}" Margin="0 8 5 0" FontWeight="Bold" />
-                            <TextBlock Grid.Column="1" Text="{Binding Key}" Margin="0 8 0 0" />
+                            <TextBlock Grid.Column="0" Text="{Binding Key, StringFormat='제조사명: {0}'}" Margin="0 8 5 0" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat='- ID: {0}'}" Margin="0 8 5 0" FontWeight="SemiBold" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

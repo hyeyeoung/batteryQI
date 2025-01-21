@@ -16,7 +16,7 @@ namespace batteryQI.ViewModels
     // 이미지 검사 이벤트
     internal partial class InspectViewModel : ObservableObject
     {
-        // combox 리스트
+        // combobox 리스트
         private IList<string> _manufacList = new List<string>(); // 제조사명 받아오기
         private Dictionary<string, string> ManufacDict = new Dictionary<string, string>(); // viewmodel에서만 사용하는 딕셔너리 가져오기
         private IList<string>? _batteryTypeList = new List<string>() {"Cell", "Module", "Pack" };
@@ -25,6 +25,12 @@ namespace batteryQI.ViewModels
         private Battery _battery;
         private DBlink DBConnection;
 
+        // 검사 진행률(ProgressBar) 필드
+        private int _totalWorkAmount = Manager.Instance().WorkAmount; // 다른 ViewModel에 구현된 객체의 프로퍼티값 get
+        static private int _completedWorkAmount = 0; // 창 전환 등 페이지 초기화 시에도 저장 유지 되도록 정적 속성 부여
+        private int _workProgress;
+
+        // combobox 리스트 프로퍼티
         public IList<string>? ManufacList
         {
             get => _manufacList;
@@ -41,6 +47,34 @@ namespace batteryQI.ViewModels
         {
             get => _usageList;
         }
+
+        // 검사 진행률(ProgressBar) 프로퍼티
+        public int TotalWorkAmount
+        {
+            get => _totalWorkAmount;
+            set
+            {
+                SetProperty(ref _totalWorkAmount, value);
+                UpdateWorkProgress(); // 총, 완료 작업량 변경시 연관된 진행률 프로퍼티가 자동적으로 바뀌도록 구현
+            }
+        }
+        public int CompletedWorkAmount
+        {
+            get => _completedWorkAmount;
+            set { SetProperty(ref _completedWorkAmount, value); UpdateWorkProgress(); }
+        }
+        public int WorkProgress
+        {
+            get => _workProgress;
+            set => SetProperty(ref _workProgress, value);
+        }
+        private void UpdateWorkProgress() // 작업 진행률 프로퍼티 업데이트
+        {
+            if (WorkProgress < 100)
+                WorkProgress = 100 * CompletedWorkAmount / TotalWorkAmount;
+            else
+                WorkProgress = 100;
+        }
         // ----------------
         public Battery battery
         {
@@ -56,6 +90,7 @@ namespace batteryQI.ViewModels
             DBConnection.Connect();
 
             getManafactureNameID();
+            UpdateWorkProgress();
         }
 
         // --------------------------------------------
@@ -119,6 +154,9 @@ namespace batteryQI.ViewModels
                 // 정상 불량 판단 페이지로 넘어가게
                 var inspectionImage = new InspectionImage();
                 inspectionImage.ShowDialog();
+
+                // 검사 완료 횟수 업데이트
+                CompletedWorkAmount++;
             }
             else
             {

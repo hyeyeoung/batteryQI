@@ -41,13 +41,6 @@ namespace batteryQI.Models
             {
                 SetProperty(ref _managerPW, value);
             }
-        public string ManagerPW
-        {
-            get { return _managerPW; }
-            set
-            {
-                SetProperty(ref _managerPW, value);
-            }
         }
         public int WorkAmount
         {

@@ -125,15 +125,18 @@
 
                                 <!-- 검사 정보 -->
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Margin="20 0 0 0" Text="할당량 : " Foreground="White" FontSize="15"/>
-                                    <TextBlock Margin="60 0 0 0" Text="검사완료 : " Foreground="White" FontSize="15"/>
-                                    <TextBlock Margin="60 0 0 0" Text="검사진행률 : " Foreground="White" FontSize="15"/>
+                                    <TextBlock Margin="20 0 0 0" Text="{Binding TotalWorkAmount, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='총 작업량: {0}'}" 
+                                               Foreground="White" FontSize="15"/>
+                                    <TextBlock Margin="20 0 0 0" Text="{Binding CompletedWorkAmount, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='완료 작업량: {0}'}"
+                                               Foreground="White" FontSize="15"/>
+                                    <TextBlock Margin="20 0 0 0" Text="{Binding WorkProgress, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='작업 진행률: {0}%'}"
+                                               Foreground="White" FontSize="15"/>
                                 </StackPanel>
 
                                 <!-- ProgressBar와 퍼센트 -->
                                 <Grid Margin="20 10 20 0" VerticalAlignment="Center">
                                     <!-- ProgressBar -->
-                                    <ProgressBar Height="20" Value="20" Maximum="100">
+                                    <ProgressBar Height="20" Value="{Binding WorkProgress}" Maximum="100">
                                         <ProgressBar.Resources>
                                             <!-- ProgressBar 색상 변경 -->
                                             <Style TargetType="ProgressBar">
@@ -146,7 +149,8 @@
                                     </ProgressBar>
 
                                     <!-- 퍼센트 텍스트 -->
-                                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 10 0" FontSize="14" Foreground="White" FontWeight="SemiBold" Text="20%" />
+                                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 10 0" FontSize="14" Foreground="White" FontWeight="SemiBold" 
+                                               Text="{Binding WorkProgress, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0}%'}" />
                                 </Grid>
                             </StackPanel>
                         </Grid>

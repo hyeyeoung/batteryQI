@@ -15,12 +15,6 @@ namespace batteryQI.ViewModels.Bases
 {
     public partial class ViewModelBases : ObservableObject
     {
-        //// 클릭 이벤트 등록
-        //[RelayCommand]
-        //private void LinkDB()
-        //{
-        //    DBlink x = new();
-        //    x.Connect(); // 링크
-        //}
+
     }
 }

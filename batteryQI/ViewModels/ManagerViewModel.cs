@@ -30,17 +30,25 @@ namespace batteryQI.ViewModels
 
         DBlink DBConnection;
         Manager _manager;
+        int _newWorkAmount; // 변경할 작업량. 기존 코드는 텍스트를 입력하기만해도 _manager.WorkAmount 변경, 의도치 않은 값 변경 위험
         public Manager Manager
         {
             get => _manager;
             set => SetProperty(ref _manager, value);
         }
+        public int NewWorkAmount
+        {
+            get => _newWorkAmount;
+            set =>SetProperty(ref _newWorkAmount, value);
+        }
         public ManagerViewModel()
         {
             DBConnection = DBlink.Instance(); // DB객체 연결
             _manager = Manager.Instance();
+            _newWorkAmount = _manager.WorkAmount;
             getManafactureNameID();
         }
+
 
         private void getManafactureNameID() // DB에서 제조사 리스트 가져오기
         {
@@ -76,10 +84,13 @@ namespace batteryQI.ViewModels
                 {
                     if(ManufacName != "")
                     {
-                        DBConnection.Insert($"INSERT INTO manufacture (manufacId, manufacName) VALUES(0, '{ManufacName}');");
-                        _manufacDict.Clear();
-                        getManafactureNameID();
-                        MessageBox.Show("완료");
+                        if (MessageBox.Show($"추가하시려는 제조사가 다음이 맞습니까?\r\n{ManufacName}", "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            DBConnection.Insert($"INSERT INTO manufacture (manufacId, manufacName) VALUES(0, '{ManufacName}');");
+                            _manufacDict.Clear();
+                            getManafactureNameID();
+                            MessageBox.Show($"새로운 제조사가 추가되었습니다.\r\n{ManufacName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
                     else
                     {
@@ -98,8 +109,18 @@ namespace batteryQI.ViewModels
             // 월 검사 할당량 수정 이벤트
             if (DBConnection.ConnectOk())
             {
-                DBConnection.Update($"UPDATE manager SET workAmount={_manager.WorkAmount} WHERE managerId='{_manager.ManagerID}';");
-                MessageBox.Show("수정 완료!");
+                int _defaultWorkAmount = _manager.WorkAmount; // 기존 작업량
+
+                if (MessageBox.Show($"월 검사 할당량을 수정하시겠습니까?\r\n기존 작업량: {_defaultWorkAmount}, 새 작업량: {_newWorkAmount}",
+                    "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    _manager.WorkAmount = _newWorkAmount; // 새 작업량 할당
+                    // 새 작업량 DB 업데이트
+                    DBConnection.Update($"UPDATE manager SET workAmount={_manager.WorkAmount} WHERE managerId='{_manager.ManagerID}';");
+
+                    MessageBox.Show($"월 검사 할당량이 {_newWorkAmount}로 수정되었습니다.",
+                        "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
             else
             {
