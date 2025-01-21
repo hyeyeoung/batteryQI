@@ -12,27 +12,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using batteryQI.ViewModels;
+using batteryQI.Views;
+using Microsoft.Win32;
 
-namespace batteryQI.UserControls
+namespace batteryQI.Views.UserControls
 {
     /// <summary>
-    /// Interaction logic for ManagerPage.xaml
+    /// Interaction logic for DashboardView.xaml
     /// </summary>
-    public partial class ManagerView : UserControl
+    public partial class DashboardView : UserControl
     {
-        public ManagerView()
+        public DashboardView()
         {
             InitializeComponent();
+            this.DataContext = new InspectViewModel(); // ViewModel 연결
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void AddManufacturerButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }
