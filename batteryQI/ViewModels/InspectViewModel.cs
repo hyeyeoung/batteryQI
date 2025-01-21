@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +16,7 @@ namespace batteryQI.ViewModels
     // 이미지 검사 이벤트
     internal partial class InspectViewModel : ObservableObject
     {
-        // combox 리스트
+        // combobox 리스트
         private IList<string> _manufacList = new List<string>(); // 제조사명 받아오기
         private Dictionary<string, string> ManufacDict = new Dictionary<string, string>(); // viewmodel에서만 사용하는 딕셔너리 가져오기
         private IList<string>? _batteryTypeList = new List<string>() {"Cell", "Module", "Pack" };
@@ -26,10 +26,11 @@ namespace batteryQI.ViewModels
         private DBlink DBConnection;
 
         // 검사 진행률(ProgressBar) 필드
-        private int _totalWorkAmount;
-        private int _completedWorkAmount;
+        private int _totalWorkAmount = Manager.Instance().WorkAmount; // 다른 ViewModel에 구현된 객체의 프로퍼티값 get
+        static private int _completedWorkAmount = 0; // 창 전환 등 페이지 초기화 시에도 저장 유지 되도록 정적 속성 부여
         private int _workProgress;
 
+        // combobox 리스트 프로퍼티
         public IList<string>? ManufacList
         {
             get => _manufacList;
@@ -46,28 +47,40 @@ namespace batteryQI.ViewModels
         {
             get => _usageList;
         }
-        // ----------------
-        public Battery battery
-        {
-            get => _battery;
-            set => SetProperty(ref _battery, value);
-        }
+
+        // 검사 진행률(ProgressBar) 프로퍼티
         public int TotalWorkAmount
         {
             get => _totalWorkAmount;
-            set => SetProperty(ref _totalWorkAmount, value);
+            set
+            {
+                SetProperty(ref _totalWorkAmount, value);
+                UpdateWorkProgress(); // 총, 완료 작업량 변경시 연관된 진행률 프로퍼티가 자동적으로 바뀌도록 구현
+            }
         }
         public int CompletedWorkAmount
         {
             get => _completedWorkAmount;
-            set => SetProperty(ref _completedWorkAmount, value);
+            set { SetProperty(ref _completedWorkAmount, value); UpdateWorkProgress(); }
         }
         public int WorkProgress
         {
             get => _workProgress;
             set => SetProperty(ref _workProgress, value);
         }
-
+        private void UpdateWorkProgress() // 작업 진행률 프로퍼티 업데이트
+        {
+            if (WorkProgress < 100)
+                WorkProgress = 100 * CompletedWorkAmount / TotalWorkAmount;
+            else
+                WorkProgress = 100;
+        }
+        // ----------------
+        public Battery battery
+        {
+            get => _battery;
+            set => SetProperty(ref _battery, value);
+        }
         public InspectViewModel()
         {
             // Manager 객체 생성
@@ -77,6 +90,7 @@ namespace batteryQI.ViewModels
             DBConnection.Connect();
 
             getManafactureNameID();
+            UpdateWorkProgress();
         }
 
         // --------------------------------------------
@@ -91,7 +105,6 @@ namespace batteryQI.ViewModels
                  foreach(KeyValuePair<string, object> items in ManufactureList_Raw[i])
                 {
                     // 제조사 이름 key, 제조사 id value
-                    //Name = items.
                     if(items.Key == "manufacName")
                     {
                         Name = items.Value.ToString();
@@ -125,20 +138,35 @@ namespace batteryQI.ViewModels
         [RelayCommand]
         private void ImageInspectionButton_Click()
         {
+            List<string> emptyFields = new List<string>();
+
+            if (string.IsNullOrEmpty(battery.ImagePath)) emptyFields.Add("이미지");
+            if (string.IsNullOrEmpty(battery.ManufacName)) emptyFields.Add("제조사명");
+            if (string.IsNullOrEmpty(battery.BatteryShape)) emptyFields.Add("배터리 형태");
+            if (string.IsNullOrEmpty(battery.BatteryType)) emptyFields.Add("배터리 타입");
+            if (string.IsNullOrEmpty(battery.Usage)) emptyFields.Add("사용 용도");
+
             // 이미지 정보, 제조사 아이디
-            if(battery.ImagePath != "" && battery.ManufacName != "" && battery.BatteryShape != "" && battery.BatteryType != "" && battery.Usage != "")
+            if (battery.ImagePath != "" && battery.ManufacName != "" && battery.BatteryShape != "" && battery.BatteryType != "" && battery.Usage != "")
             {
                 // 이미지 검사 함수로 대체 예정
-                //battery.BatteryBitmapImage = new BitmapImage(new Uri(_battery.ImagePath)); // 이미지를 bitmap으로 변환
-                //imgProcessing
                 battery.imgProcessing(); 
                 // 정상 불량 판단 페이지로 넘어가게
                 var inspectionImage = new InspectionImage();
                 inspectionImage.ShowDialog();
+
+                // 검사 완료 횟수 업데이트
+                CompletedWorkAmount++;
             }
             else
             {
-                System.Windows.MessageBox.Show("모든 정보를 기입해주세요", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                string emptyFieldsMessage = string.Join(", ", emptyFields);
+                System.Windows.MessageBox.Show(
+                    $"다음 정보를 기입해주세요: {emptyFieldsMessage}",
+                    "입력 오류",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
         }
         // -------------------------------------- Inspection 결과 화면 이벤트 처리
@@ -147,7 +175,6 @@ namespace batteryQI.ViewModels
         {
             // DefectState는 정상인걸로
             battery.DefectStat = "정상";
-            //System.Windows.Application.Current.Windows[1]?.Close();
         }
         [RelayCommand]
         private void ErrorButton_Click()
@@ -158,6 +185,24 @@ namespace batteryQI.ViewModels
             //errorReasonControl.ErrorConfirmed += OnErrorReasonConfirmed;
 
             //InspectionFrame.Content = errorReasonControl;
+        }
+
+
+
+        // ------------------------
+        // ErrorInfo.xaml 이벤트 핸들링 (데이터 가용성을 위해서 여기서 코딩함..)
+        [RelayCommand]
+        private void confirmErrorInfoButton_Click()
+        {
+            if (DBConnection.ConnectOk()) // 배터리 정보 insert
+            {
+                DBConnection.Insert($"INSERT INTO batteryInfo (batteryId, shootDate, `usage`, batteryType, manufacId, batteryShape, shootPlace, imagePath, managerNum, defectStat, defectName)" +
+                    $"VALUES(0, '', '', '', 0, '', '', '', 0, 0, '');");
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("DB 연결 이상", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

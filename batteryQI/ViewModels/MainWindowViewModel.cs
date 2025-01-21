@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +10,7 @@ using batteryQI.ViewModels.Bases;
 using CommunityToolkit.Mvvm.Input;
 using batteryQI.Views.UserControls;
 using batteryQI.Views;
-using System.Windows.Controls;
-
+using System.Data.Common;
 
 namespace batteryQI.ViewModels
 {
@@ -25,7 +24,7 @@ namespace batteryQI.ViewModels
         }
 
         public Action? CloseAction { get; set; }
-
+        DBlink DBConnection = DBlink.Instance();
         public MainWindowViewModel()
         {
             // 초기 화면 설정
@@ -53,6 +52,7 @@ namespace batteryQI.ViewModels
         [RelayCommand]
         private void ExitButton()
         {
+            DBConnection.Disconnect(); // DB 연결 끊기
             CloseAction?.Invoke();
         }
     }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,11 +13,25 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Google.Protobuf;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Common;
 
 
 namespace batteryQI.Models
 {
-    internal class DBlink : ObservableObject
+    // DB select count결과 저장용도 - 추후 따로 cs분리해서 넣을까 고민중
+    public class CountResult
+    {
+        public List<object> defectGroups { get; set; }
+        public List<double> counts { get; set; }
+
+        public CountResult()
+        {
+            defectGroups = new List<object>();
+            counts = new List<double>();
+        }
+    }
+
+    public class DBlink : ObservableObject
     {
         private string _server = ""; // _server : ip 주소
         private string _port = ""; // _port : 포트번호
@@ -27,7 +42,7 @@ namespace batteryQI.Models
         static DBlink staticDBlink; // DB 연결 객체 생성
         MySqlConnection connection; // DB connection 객체
 
-        private DBlink() { }
+        private DBlink() { } // 실수로 생성자를 사용하여 여러 인스턴스가 생성되는 상황 방지
         public static DBlink Instance()
         {
             if(staticDBlink == null)
@@ -95,6 +110,18 @@ namespace batteryQI.Models
             }
         }
 
+        public void Update(string sql)
+        {
+            try
+            {
+                MySqlCommand cmd = new MySqlCommand(sql, this.connection);
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+                MessageBox.Show("데이터가 반영되지 않았습니다!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         public List<Dictionary<string, object>> Select(string sql)
         {
             // 간단한 Select문 메소드, 불러오는 데이터가 크면 그냥 직접 Select을 하는 것을 추천
@@ -126,6 +153,78 @@ namespace batteryQI.Models
                 MessageBox.Show("데이터베이스 접속 오류", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return resultList;
+        }
+
+        
+
+        // DB select count(*) action
+        public CountResult? CountQuery(string table, string groupingCriteria, string mode = "label")
+        {
+            CountResult result = new CountResult();
+            
+            // label이 default
+            string query = @$"
+                        SELECT
+	                        {groupingCriteria},
+	                        Count(*)
+                        FROM
+	                        {table}
+                        GROUP BY
+	                        {groupingCriteria};";
+
+            if (mode == "timestamp")
+            {
+                query = @$"
+                            SELECT
+                             DATE_FORMAT({groupingCriteria}, '%Y-%m-%d %H:00:00') AS hour_interval,
+                             COUNT(*) AS count
+                            FROM
+                             {table}
+                            WHERE 
+                                defectStat = 1
+                            GROUP BY
+                             hour_interval
+                            ORDER BY
+                             hour_interval;";
+            }
+
+            MySqlCommand cmd = new MySqlCommand(query, this.connection);
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                result.defectGroups.Add(reader[0]);
+                result.counts.Add(reader.GetDouble(1));
+            }
+            reader.Close();
+
+            return result;
+
+        }
+
+        // 저장할 구조가 달라서 따로 선언
+        public List<(string, string, int)> GroupCountQuery(string table, string groupingCriteria, string mode = "label")
+        {
+            List<(string, string, int)>result = new List<(string, string, int)>();
+            string query = @$"
+                        SELECT
+	                        {groupingCriteria},
+	                        Count(*)
+                        FROM
+	                        {table}
+                        GROUP BY
+	                        {groupingCriteria};";
+            
+            MySqlCommand cmd = new MySqlCommand(query, this.connection);
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                result.Add((reader.GetString(0), reader.GetString(1), reader.GetInt16(2)));
+            }
+            reader.Close();
+
+            return result;
         }
 
         public void Disconnect()

@@ -10,7 +10,7 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using Google.Protobuf.WellKnownTypes;
 using System.Windows.Forms;
 using System.Drawing;
-using SkiaSharp;
+//using SkiaSharp; // 아마 ScottPlot5 쓸데 있던 것 같은데 왜 여기에 있고, 남아있는지는 모르겠음
 using System.IO;
 //using Microsoft.ML.O
 
@@ -39,6 +39,8 @@ namespace batteryQI.Models
         private string modelPath = @".\weight\deeplab_model5.onnx"; // 이미지 처리 모델 로드
 
         static Battery staticBattery;
+
+        private Battery() { } // 실수로 생성자를 사용하여 여러 인스턴스가 생성되는 상황 방지
         public static Battery Instance()
         {
             if (staticBattery == null)

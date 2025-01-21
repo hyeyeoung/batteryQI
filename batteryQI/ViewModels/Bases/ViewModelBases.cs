@@ -15,17 +15,5 @@ namespace batteryQI.ViewModels.Bases
 {
     public partial class ViewModelBases : ObservableObject
     {
-        private Manager _manager = Manager.Instance();
-        public ViewModelBases()
-        {
-        }
-
-        // 클릭 이벤트 등록
-        [RelayCommand]
-        private void LinkDB()
-        {
-            DBlink x = DBlink.Instance();
-            x.Connect(); // 링크
-        }
     }
 }
