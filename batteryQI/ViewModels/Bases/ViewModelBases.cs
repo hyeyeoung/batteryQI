@@ -15,6 +15,5 @@ namespace batteryQI.ViewModels.Bases
 {
     public partial class ViewModelBases : ObservableObject
     {
-
     }
 }
