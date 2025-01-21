@@ -41,8 +41,14 @@ namespace batteryQI.Models
             {
                 SetProperty(ref _managerPW, value);
             }
+        public string ManagerPW
+        {
+            get { return _managerPW; }
+            set
+            {
+                SetProperty(ref _managerPW, value);
+            }
         }
-
         public int WorkAmount
         {
             get { return _workAmount; }
@@ -50,31 +56,6 @@ namespace batteryQI.Models
             {
                 SetProperty(ref _workAmount, value);
             }
-        }
-
-        public int ReturnTotalWorkAmount()
-        {
-            return WorkAmount;
-        }
-
-        public int ReturnCompletedAmount()
-        {
-            return 0; // 임시
-        }
-
-        public void EditWorkAmount(int newAmount)
-        {
-            WorkAmount = newAmount;
-        }
-
-        public void InspectBattery()
-        {
-
-        }
-
-        public void AddDBBetteryCompany(string newCompany)
-        {
-
         }
     }
 }
