@@ -34,6 +34,7 @@ namespace batteryQI.Views.UserControls
 
         // 텍스트 입력 검사 이벤트 핸들러. 새 작업량 설정에 정수만 입력 가능하도록 규제
         private void InspectionLimitBox_TextChanged(object sender, TextChangedEventArgs e)
+
         {
             if (sender is not TextBox textBox)
                 return;

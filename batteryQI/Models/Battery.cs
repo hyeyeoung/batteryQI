@@ -52,7 +52,7 @@ namespace batteryQI.Models
         public string Usage
         {
             get { return _usage; }
-            set {SetProperty(ref _usage, value); }
+            set { SetProperty(ref _usage, value); }
         }
         public string BatteryType
         {
