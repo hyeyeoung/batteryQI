@@ -10,6 +10,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Forms;
 using batteryQI.Models;
+using batteryQI.Views.UserControls;
+using System.Windows.Controls;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Collections.ObjectModel;
 
 namespace batteryQI.ViewModels
 {
@@ -17,13 +21,19 @@ namespace batteryQI.ViewModels
     internal partial class InspectViewModel : ObservableObject
     {
         // combobox 리스트
-        private IList<string> _manufacList = new List<string>(); // 제조사명 받아오기
+        private ObservableCollection<Manufacture> _manufacList = new ObservableCollection<Manufacture>(); // 제조사명과 id, 활성화 여부 저장 
+        private List<bool> _manufacUsed; // 제조사별 활성화 여부 확인
         private Dictionary<string, string> ManufacDict = new Dictionary<string, string>(); // viewmodel에서만 사용하는 딕셔너리 가져오기
         private IList<string>? _batteryTypeList = new List<string>() {"Cell", "Module", "Pack" };
         private IList<string>? _batteryShapeList = new List<string>() { "Pouch", "Cylinder" };
         private IList<string>? _usageList = new List<string>() { "Household", "Industrial" }; // 사용처 리스트업
+        private IList<string>? _defectList = new List<string>() { "Damage", "Pollution", "Damage and Pollution", "Etc.." };
         private Battery _battery;
+        private Manager _manager;
         private DBlink DBConnection;
+
+        private Visibility _errorInspectionVisibility = Visibility.Visible; // 첫 번째 UserControl (ErrorInspection) Visibility 제어
+        private Visibility _errorReasonVisibility = Visibility.Collapsed; // 두 번째 UserControl (ErrorReason) Visibility 제어
 
         // 검사 진행률(ProgressBar) 필드
         private int _totalWorkAmount = Manager.Instance().WorkAmount; // 다른 ViewModel에 구현된 객체의 프로퍼티값 get
@@ -31,9 +41,17 @@ namespace batteryQI.ViewModels
         private int _workProgress;
 
         // combobox 리스트 프로퍼티
-        public IList<string>? ManufacList
+        public ObservableCollection<Manufacture> ManufacList
         {
             get => _manufacList;
+        }
+        public List<bool> ManufacUsed
+        {
+            get => _manufacUsed;
+            set
+            {
+                SetProperty(ref _manufacUsed, value);
+            }
         }
         public IList<string>? BatteryTypeList
         {
@@ -83,11 +101,17 @@ namespace batteryQI.ViewModels
         }
         public InspectViewModel()
         {
+            // 제조사 활성화 여부 객체 생성
+            _manufacUsed = ManufactureActive.Instance();
             // Manager 객체 생성
             _battery = Battery.Instance();
+            _manager = Manager.Instance();
             // 대시보드 열며 DB 연결
             DBConnection = DBlink.Instance();
             DBConnection.Connect();
+
+            // 다음 AUTO_INCREMENT 값 가져오기
+            _battery.BatteryID = GetNextAutoIncrementId();
 
             getManafactureNameID();
             UpdateWorkProgress();
@@ -97,27 +121,49 @@ namespace batteryQI.ViewModels
         private void getManafactureNameID() // DB에서 제조사 리스트 가져오기
         {
             // DB에서 가져와서 리스트 초기화하기, ID는 안 가져오고 Name만 추가
-            List<Dictionary<string, object>> ManufactureList_Raw = DBConnection.Select("SELECT * FROM manufacture;"); // 데이터 가져오기
-            for(int i = 0; i < ManufactureList_Raw.Count; i++)
-            {
-                string Name = "";
-                string ID = "";
-                 foreach(KeyValuePair<string, object> items in ManufactureList_Raw[i])
+            if (_manufacList == null)
+            { 
+                List<Dictionary<string, object>> ManufactureList_Raw = DBConnection.Select("SELECT * FROM manufacture;"); // 데이터 가져오기
+                // 가져온 제조사별 활성화 여부 초기화. 전체가 true로 덮어쓰기되는 상황 방지
+                while (ManufacUsed.Count < ManufactureList_Raw.Count)
+                    ManufacUsed.Add(true);
+
+                for (int i = 0; i < ManufactureList_Raw.Count; i++)
                 {
-                    // 제조사 이름 key, 제조사 id value
-                    if(items.Key == "manufacName")
+                    string Name = "";
+                    string ID = "";
+                    foreach (KeyValuePair<string, object> items in ManufactureList_Raw[i])
                     {
-                        Name = items.Value.ToString();
+                        // 제조사 이름 key, 제조사 id value
+                        if (items.Key == "manufacName")
+                        {
+                            Name = items.Value.ToString();
+                        }
+                        else if (items.Key == "manufacId")
+                        {
+                            ID = items.Value.ToString();
+                        }
                     }
-                    else if(items.Key == "manufacId")
-                    {
-                        ID = items.Value.ToString(); 
-                    }
+                    _manufacList.Add(new Manufacture(Name, ID, ManufacUsed[i]));
+                    ManufacDict.Add(Name, ID);
                 }
-                _manufacList.Add(Name);
-                ManufacDict.Add(Name, ID);
             }
         }
+
+        // 첫 번째 UserControl (ErrorInspection) Visibility 제어
+        public Visibility ErrorInspectionVisibility
+        {
+            get => _errorInspectionVisibility;
+            set => SetProperty(ref _errorInspectionVisibility, value);
+        }
+
+        // 두 번째 UserControl (ErrorReason) Visibility 제어
+        public Visibility ErrorReasonVisibility
+        {
+            get => _errorReasonVisibility;
+            set => SetProperty(ref _errorReasonVisibility, value);
+        }
+
 
         // --------------------------------------------
         // 이벤트 핸들러
@@ -171,37 +217,118 @@ namespace batteryQI.ViewModels
         }
         // -------------------------------------- Inspection 결과 화면 이벤트 처리
         [RelayCommand]
-        private void NomalButton_Click()
+        private void NomalButton_Click(System.Windows.Window window)
         {
             // DefectState는 정상인걸로
             battery.DefectStat = "정상";
+            battery.DefectName = "Normal";
+            var errorInfoView = new ErrorInfoView();
+            errorInfoView.Show();
+
+            window?.Close(); // 현재 창 닫기
         }
         [RelayCommand]
         private void ErrorButton_Click()
         {
-            //inspectionSection.Visibility = Visibility.Collapsed;
-
-            //var errorReasonControl = new UserControls.ErrorReason();
-            //errorReasonControl.ErrorConfirmed += OnErrorReasonConfirmed;
-
-            //InspectionFrame.Content = errorReasonControl;
+            battery.DefectStat = "불량";
+            // 버튼 영역(정상/불량 버튼 숨기기)
+            ErrorInspectionVisibility = Visibility.Collapsed;
+            // Frame 영역 보이기
+            ErrorReasonVisibility = Visibility.Visible;
         }
-
-
 
         // ------------------------
         // ErrorInfo.xaml 이벤트 핸들링 (데이터 가용성을 위해서 여기서 코딩함..)
+
         [RelayCommand]
-        private void confirmErrorInfoButton_Click()
+        private void ConfirmErrorReasonButton_Click(System.Windows.Window window)
         {
-            if (DBConnection.ConnectOk()) // 배터리 정보 insert
+            // 선택한 값이 "불량 유형을 선택하세요"이거나 null일 경우 예외 처리
+            if (string.IsNullOrEmpty(battery.DefectName) || battery.DefectName == "불량 유형을 선택하세요")
             {
-                DBConnection.Insert($"INSERT INTO batteryInfo (batteryId, shootDate, `usage`, batteryType, manufacId, batteryShape, shootPlace, imagePath, managerNum, defectStat, defectName)" +
-                    $"VALUES(0, '', '', '', 0, '', '', '', 0, 0, '');");
+                System.Windows.MessageBox.Show(
+                    "불량 유형을 선택해주세요.",
+                    "입력 오류",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
+                return; // 동작 중단
             }
-            else
+
+
+            // 세 번째 페이지로 이동
+            var errorInfoView = new ErrorInfoView();
+            errorInfoView.Show();
+
+            // 현재 창 닫기
+            window?.Close();
+        }
+        [RelayCommand]
+        private void confirmErrorInfoButton_Click(System.Windows.Window window)
+        {
+            // DB 정보 인서트
+
+            if (DBConnection.ConnectOk())
             {
-                System.Windows.MessageBox.Show("DB 연결 이상", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                int defectState = -1;
+                if (battery.DefectStat == "정상")
+                    defectState = 1;
+                else
+                    defectState = 0;
+
+                //DBConnection.Insert($"INSERT INTO manufacture (manufacId, manufacName) VALUES(0, '{ManufacName}');");
+
+                if (DBConnection.Insert($"INSERT INTO batteryInfo (batteryId, shootDate, usageName, batteryType, manufacId, batteryShape, shootPlace, imagePath, managerNum, defectStat, defectName)" +
+                    $"VALUES(0, '{battery.ShootDate}', '{battery.Usage}', '{battery.BatteryType}', {ManufacDict[battery.ManufacName]}, '{battery.BatteryShape}', 'CodingOn', NULL, {_manager.ManagerNum}, {defectState}, '{battery.DefectName}');"))
+                {
+                    System.Windows.MessageBox.Show("완료!");
+                    // 데이터 초기화
+                    battery.Usage = "";
+                    battery.BatteryType = "";
+                    battery.ManufacName = ""; 
+                    battery.BatteryShape = "";
+                    _manager.ManagerNum = 0;
+                    battery.DefectName = "";
+                    battery.ImagePath = "";
+                    battery.BatteryBitmapImage = null; // bitmap 이미지 초기화
+                }
+                else
+                    System.Windows.MessageBox.Show("실패");
+            }
+            //System.Windows.Application.Current.Windows[0]?.Close();
+            window?.Close();
+        }
+
+        private string GetNextAutoIncrementId()
+        {
+            try
+            {
+                // 다음 AUTO_INCREMENT 값 가져오기
+                string query = @"
+                                SELECT AUTO_INCREMENT
+                                       FROM INFORMATION_SCHEMA.TABLES
+                                 WHERE TABLE_SCHEMA = 'batteryQI' 
+                                       AND TABLE_NAME = 'batteryInfo';
+                                 ";
+
+                // 데이터베이스 연결 및 쿼리 실행
+                var result = DBConnection.Select(query);
+
+                if (result.Count > 0)
+                {
+                    // AUTO_INCREMENT 값을 문자열로 반환
+                    return result[0]["AUTO_INCREMENT"].ToString();
+                }
+                else
+                {
+                    return "알 수 없음"; // 데이터가 없는 경우
+                }
+            }
+            catch (Exception ex)
+            {
+                // 오류 발생 시 처리
+                System.Windows.MessageBox.Show($"Battery ID 가져오기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                return "오류";
             }
         }
     }

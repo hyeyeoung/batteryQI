@@ -12,9 +12,11 @@ namespace batteryQI.Models
     // 싱글톤 패턴
     internal class Manager : ObservableObject
     {
-        private string _managerID; // 관리자 ID
-        private string _managerPW; // 관리자 PW
-        private int _workAmount; // 관리자에게 할당된 작업량
+        private int _managerNum;
+        private string _managerID; // 담당자 아이디
+        private string _managerPW; // 담당자 비번
+        private int _workAmount; // 담당자 할당량
+        private int _totalInspectNum; // 오늘 수행량 저장 변수
         static Manager manager; // singleton
 
         private Manager() { } // singleton을 위반하는 상황 방지를 위해 private 수식
@@ -34,6 +36,14 @@ namespace batteryQI.Models
                 SetProperty(ref _managerID, value);
             }
         }
+        public int ManagerNum
+        {
+            get { return _managerNum; }
+            set
+            {
+                SetProperty(ref _managerNum, value);
+            }
+        }
         public string ManagerPW
         {
             get { return _managerPW; }
@@ -48,6 +58,14 @@ namespace batteryQI.Models
             set
             {
                 SetProperty(ref _workAmount, value);
+            }
+        }
+        public int TotalInspectNum
+        {
+            get { return _totalInspectNum; }
+            set
+            {
+                SetProperty(ref _totalInspectNum, value);
             }
         }
     }
