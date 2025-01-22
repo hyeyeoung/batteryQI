@@ -44,6 +44,7 @@ namespace batteryQI.ViewModels
         public ManagerViewModel()
         {
             DBConnection = DBlink.Instance(); // DB객체 연결
+
             _manager = Manager.Instance();
             _newWorkAmount = _manager.WorkAmount;
             getManafactureNameID();

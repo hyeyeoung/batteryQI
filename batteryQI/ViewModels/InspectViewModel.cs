@@ -30,6 +30,9 @@ namespace batteryQI.ViewModels
         private Manager _manager;
         private DBlink DBConnection;
 
+        private Visibility _errorInspectionVisibility = Visibility.Visible; // 첫 번째 UserControl (ErrorInspection) Visibility 제어
+        private Visibility _errorReasonVisibility = Visibility.Collapsed; // 두 번째 UserControl (ErrorReason) Visibility 제어
+
         // 검사 진행률(ProgressBar) 필드
         private int _totalWorkAmount = Manager.Instance().WorkAmount; // 다른 ViewModel에 구현된 객체의 프로퍼티값 get
         static private int _completedWorkAmount = 0; // 창 전환 등 페이지 초기화 시에도 저장 유지 되도록 정적 속성 부여

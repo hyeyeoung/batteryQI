@@ -8,21 +8,20 @@
 
     <Viewbox Stretch="Uniform">
         <Grid Width="1280" Height="720">
-
             <Grid Margin="10 50">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-        <!-- Monthly Inspection Allocation -->
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="-55,0,55,0">
-            <TextBlock Text="월 검사 할당량: " FontWeight="Bold" VerticalAlignment="Center" Margin="0 0 5 0" />
-            <TextBox Text="{Binding NewWorkAmount, UpdateSourceTrigger=LostFocus}"
-                     x:Name="InspectionLimitBox" Width="150" VerticalAlignment="Center" Margin="0 0 5 0" TextChanged="InspectionLimitBox_TextChanged" />
-            <TextBlock Text="건" VerticalAlignment="Center" Margin="0 0 10 0" />
-            <Button Content="저장"
-                    Width="60" Height="30"
+                <!-- Monthly Inspection Allocation -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0 0 0 10">
+                    <TextBlock Text="월 검사 할당량" VerticalAlignment="Center" Margin="0 0 5 0" FontSize="25" FontWeight="SemiBold"/>
+                    <TextBox Text="{Binding Manager.WorkAmount, UpdateSourceTrigger=PropertyChanged}"
+                     x:Name="InspectionLimitBox" Width="150" VerticalAlignment="Center" Margin="20 0 5 0" Height="auto" FontSize="20"/>
+                    <TextBlock Text="건" VerticalAlignment="Center" Margin="0 0 10 0" FontSize="25" FontWeight="SemiBold"/>
+                    <Button Content="저장"
+                    Width="70" Height="40"
                     VerticalAlignment="Center"
                     Style="{StaticResource commonButton}" Margin="5 0 0 0" FontSize="20"        
                     Command="{Binding SaveButton_ClickCommand}" />
@@ -44,28 +43,22 @@
                         Command="{Binding ManufactInsertCommand}" />
                     </StackPanel>
 
-            <!--<StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0 0 0 5">
-                <TextBlock Text="제조사 리스트:" FontWeight="Bold" VerticalAlignment="Center" Margin="0 0 5 0" />
-                <TextBox Text="{Binding ManufacName, UpdateSourceTrigger=PropertyChanged}"
-                         Width="150" VerticalAlignment="Center" Margin="0 0 5 0" />
-                <Button Content="+" Width="30" Height="30" VerticalAlignment="Center"
-                        Command="{Binding ManufactInsertCommand}" />
-            </StackPanel>-->
-
-            <ListBox ItemsSource="{Binding ManufacDict, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{Binding Key, StringFormat='제조사명: {0}'}" Margin="0 8 5 0" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat='- ID: {0}'}" Margin="0 8 5 0" FontWeight="SemiBold" />
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                    <ListBox ItemsSource="{Binding ManufacDict, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Key, StringFormat='제조사명: {0}'}" Margin="0 8 5 0" FontSize="22" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat='- ID: {0}'}" Margin="0 8 5 0" FontSize="22" FontWeight="SemiBold" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Grid>
         </Grid>
-    </Grid>
+    </Viewbox>
 </UserControl>
