@@ -57,7 +57,7 @@
                         <Border CornerRadius="20" Background="#7163ba" Margin="0,0,0,22">
                             <StackPanel Orientation="Vertical" Margin="20 20 20 0">
                                 <TextBlock Text="배터리 이미지 정보" Margin="0 0 0 0" FontSize="20" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center"/>
-                                
+
                                 <StackPanel Orientation="Vertical" Margin="10 40 0 0">
                                     <TextBlock Text="제조사" FontSize="14" FontWeight="SemiBold" Foreground="White" Margin="75 5 5 5"/>
                                     <ComboBox x:Name="manufacture"
@@ -135,8 +135,12 @@
 
                                 <!-- ProgressBar와 퍼센트 -->
                                 <Grid Margin="20 10 20 0" VerticalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="401*"/>
+                                        <ColumnDefinition Width="809*"/>
+                                    </Grid.ColumnDefinitions>
                                     <!-- ProgressBar -->
-                                    <ProgressBar Height="20" Value="{Binding WorkProgress}" Maximum="100">
+                                    <ProgressBar Height="20" Value="{Binding WorkProgress}" Maximum="100" Grid.ColumnSpan="2">
                                         <ProgressBar.Resources>
                                             <!-- ProgressBar 색상 변경 -->
                                             <Style TargetType="ProgressBar">
@@ -149,8 +153,8 @@
                                     </ProgressBar>
 
                                     <!-- 퍼센트 텍스트 -->
-                                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 10 0" FontSize="14" Foreground="White" FontWeight="SemiBold" 
-                                               Text="{Binding WorkProgress, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0}%'}" />
+                                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="799,0,0,0" FontSize="14" Foreground="White" FontWeight="SemiBold" 
+                                               Text="{Binding WorkProgress, Mode=Oneway, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0}%'}" Grid.Column="1" />
                                 </Grid>
                             </StackPanel>
                         </Grid>
