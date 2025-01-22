@@ -47,7 +47,8 @@ namespace batteryQI.ViewModels.Bases
                     Manager.ManagerPW = pw.Password;
                     Manager.WorkAmount = Convert.ToInt32(login[0]["workAmount"]);
                     MessageBox.Show("로그인 완료", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
+                    _manager.ManagerNum = (int)login[0]["managerNum"];
+                    _manager.ManagerID = login[0]["managerId"].ToString();
                     var mainWindow = new MainWindow();
                     mainWindow.Show();
 
