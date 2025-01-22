@@ -10,22 +10,32 @@ using System.Data.Common;
 using batteryQI.Models;
 using System.Windows.Forms;
 using Mysqlx.Crud;
+using System.Collections.ObjectModel;
+using System.Xml.Linq;
 
 namespace batteryQI.ViewModels
 {
     // 관리자 페이지
     internal partial class ManagerViewModel : ObservableObject
     {
-        private string _manufacName = "";
-        private IDictionary<string, string> _manufacDict = new Dictionary<string, string>();
-        public IDictionary<string, string> ManufacDict
+        // 제조사 관련 필드와 프로퍼티.
+        private string _newManufacName = "";
+        private ObservableCollection<Manufacture> _manufacList;
+        private List<bool> _manufacUsed;
+
+        public ObservableCollection<Manufacture> ManufacList
         {
-            get => _manufacDict;
+            get => _manufacList;
         }
-        public string ManufacName
+        public string NewManufacName
         {
-            get => _manufacName;
-            set => SetProperty(ref _manufacName, value);
+            get => _newManufacName;
+            set => SetProperty(ref _newManufacName, value);
+        }
+        public List<bool> ManufacUsed
+        {
+            get => _manufacUsed;
+            set => SetProperty(ref _manufacUsed, value);
         }
 
         DBlink DBConnection;
@@ -45,6 +55,8 @@ namespace batteryQI.ViewModels
         {
             DBConnection = DBlink.Instance(); // DB객체 연결
 
+            _manufacList = new ObservableCollection<Manufacture>();
+            _manufacUsed = ManufactureActive.Instance();
             _manager = Manager.Instance();
             _newWorkAmount = _manager.WorkAmount;
             getManafactureNameID();
@@ -55,6 +67,10 @@ namespace batteryQI.ViewModels
         {
             // DB에서 가져와서 리스트 초기화하기, ID는 안 가져오고 Name만 추가
             List<Dictionary<string, object>> ManufactureList_Raw = DBConnection.Select("SELECT * FROM manufacture;"); // 데이터 가져오기
+            // 가져온 제조사 리스트 사용 여부 초기화. 전체가 true로 덮어쓰기되는 상황 방지
+            while(ManufacUsed.Count < ManufactureList_Raw.Count)
+                ManufacUsed.Add(true);
+            
             for (int i = 0; i < ManufactureList_Raw.Count; i++)
             {
                 string Name = "";
@@ -71,7 +87,7 @@ namespace batteryQI.ViewModels
                         ID = items.Value.ToString();
                     }
                 }
-                _manufacDict.Add(Name, ID);
+                _manufacList.Add(new Manufacture(Name, ID, ManufacUsed[i]));
             }
         }
 
@@ -83,14 +99,24 @@ namespace batteryQI.ViewModels
             {
                 if (DBConnection.ConnectOk())
                 {
-                    if(ManufacName != "")
+                    if(NewManufacName != "")
                     {
-                        if (MessageBox.Show($"추가하시려는 제조사가 다음이 맞습니까?\r\n{ManufacName}", "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        // 비활성화 해놨던 제조사 리스트에 추가하려는 제조사가 이미 있었던 경우를 분기 처리
+                        if (_manufacList.Any(Manufacture => Manufacture.Name == NewManufacName))
                         {
-                            DBConnection.Insert($"INSERT INTO manufacture (manufacId, manufacName) VALUES(0, '{ManufacName}');");
-                            _manufacDict.Clear();
+                            if (MessageBox.Show($"비활성화 되었던 제조사 목록에 입력하신 제조사가 존재합니다." +
+                                $"\r\n{NewManufacName} 제조사를 재활성화 하시겠습니까?", "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            {
+                                _manufacList.FirstOrDefault(Manufacture => Manufacture.Name == NewManufacName).Active = true;
+                                MessageBox.Show($"비활성화 되었던 제조사가 활성화되었습니다.\r\n{NewManufacName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                        else if (MessageBox.Show($"추가하려는 제조사가 다음이 맞습니까?\r\n{NewManufacName}", "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            DBConnection.Insert($"INSERT INTO manufacture (manufacId, manufacName) VALUES(0, '{NewManufacName}');");
+                            _manufacList.Clear();
                             getManafactureNameID();
-                            MessageBox.Show($"새로운 제조사가 추가되었습니다.\r\n{ManufacName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show($"새로운 제조사가 추가되었습니다.\r\n{NewManufacName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
                     else
@@ -98,12 +124,60 @@ namespace batteryQI.ViewModels
                         MessageBox.Show("제조사를 입력해주세요", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+                else
+                {
+                    MessageBox.Show("DB 연결 오류", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch
             {
                 MessageBox.Show("입력 오류", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        [RelayCommand]
+        private void ManufacDeActiveReActive(Manufacture selectedManufacture)
+        {
+            // 제조사 비활성화
+            try
+            {
+                if (selectedManufacture != null)
+                {
+                    string selectedName = selectedManufacture.Name;
+                    string selectedID = selectedManufacture.Id;
+                    bool? Active = _manufacList.FirstOrDefault(Manufacture => Manufacture.Name == selectedName).Active;
+
+                    if (Active == true)
+                    {
+                        if (MessageBox.Show($"해당 제조사를 비활성화 하시겠습니까?\r\n제조사명: {selectedName} - ID: {selectedID}",
+                            "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            _manufacList.FirstOrDefault(Manufacture => Manufacture.Name == selectedName).Active = false;
+                            MessageBox.Show($"기존의 제조사가 비활성화 되었습니다.\r\n{selectedName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                    else
+                    {
+                        if (MessageBox.Show($"해당 제조사를 재활성화 하시겠습니까?\r\n제조사명: {selectedName} - ID: {selectedID}",
+                            "Yes-No", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            _manufacList.FirstOrDefault(Manufacture => Manufacture.Name == selectedName).Active = true;
+                            MessageBox.Show($"기존의 제조사가 재활성화 되었습니다.\r\n{selectedName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("비활성화/재활성화할 제조사를 선택해주세요", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("입력 오류", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+
         [RelayCommand]
         private void SaveButton_Click()
         {

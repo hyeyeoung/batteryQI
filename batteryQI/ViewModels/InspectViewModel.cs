@@ -13,6 +13,7 @@ using batteryQI.Models;
 using batteryQI.Views.UserControls;
 using System.Windows.Controls;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Collections.ObjectModel;
 
 namespace batteryQI.ViewModels
 {
@@ -20,7 +21,8 @@ namespace batteryQI.ViewModels
     internal partial class InspectViewModel : ObservableObject
     {
         // combobox 리스트
-        private IList<string> _manufacList = new List<string>(); // 제조사명 받아오기
+        private ObservableCollection<Manufacture> _manufacList = new ObservableCollection<Manufacture>(); // 제조사명과 id, 활성화 여부 저장 
+        private List<bool> _manufacUsed; // 제조사별 활성화 여부 확인
         private Dictionary<string, string> ManufacDict = new Dictionary<string, string>(); // viewmodel에서만 사용하는 딕셔너리 가져오기
         private IList<string>? _batteryTypeList = new List<string>() {"Cell", "Module", "Pack" };
         private IList<string>? _batteryShapeList = new List<string>() { "Pouch", "Cylinder" };
@@ -39,9 +41,17 @@ namespace batteryQI.ViewModels
         private int _workProgress;
 
         // combobox 리스트 프로퍼티
-        public IList<string>? ManufacList
+        public ObservableCollection<Manufacture> ManufacList
         {
             get => _manufacList;
+        }
+        public List<bool> ManufacUsed
+        {
+            get => _manufacUsed;
+            set
+            {
+                SetProperty(ref _manufacUsed, value);
+            }
         }
         public IList<string>? BatteryTypeList
         {
@@ -91,6 +101,8 @@ namespace batteryQI.ViewModels
         }
         public InspectViewModel()
         {
+            // 제조사 활성화 여부 객체 생성
+            _manufacUsed = ManufactureActive.Instance();
             // Manager 객체 생성
             _battery = Battery.Instance();
             _manager = Manager.Instance();
@@ -109,25 +121,32 @@ namespace batteryQI.ViewModels
         private void getManafactureNameID() // DB에서 제조사 리스트 가져오기
         {
             // DB에서 가져와서 리스트 초기화하기, ID는 안 가져오고 Name만 추가
-            List<Dictionary<string, object>> ManufactureList_Raw = DBConnection.Select("SELECT * FROM manufacture;"); // 데이터 가져오기
-            for(int i = 0; i < ManufactureList_Raw.Count; i++)
-            {
-                string Name = "";
-                string ID = "";
-                 foreach(KeyValuePair<string, object> items in ManufactureList_Raw[i])
+            if (_manufacList == null)
+            { 
+                List<Dictionary<string, object>> ManufactureList_Raw = DBConnection.Select("SELECT * FROM manufacture;"); // 데이터 가져오기
+                // 가져온 제조사별 활성화 여부 초기화. 전체가 true로 덮어쓰기되는 상황 방지
+                while (ManufacUsed.Count < ManufactureList_Raw.Count)
+                    ManufacUsed.Add(true);
+
+                for (int i = 0; i < ManufactureList_Raw.Count; i++)
                 {
-                    // 제조사 이름 key, 제조사 id value
-                    if(items.Key == "manufacName")
+                    string Name = "";
+                    string ID = "";
+                    foreach (KeyValuePair<string, object> items in ManufactureList_Raw[i])
                     {
-                        Name = items.Value.ToString();
+                        // 제조사 이름 key, 제조사 id value
+                        if (items.Key == "manufacName")
+                        {
+                            Name = items.Value.ToString();
+                        }
+                        else if (items.Key == "manufacId")
+                        {
+                            ID = items.Value.ToString();
+                        }
                     }
-                    else if(items.Key == "manufacId")
-                    {
-                        ID = items.Value.ToString(); 
-                    }
+                    _manufacList.Add(new Manufacture(Name, ID, ManufacUsed[i]));
+                    ManufacDict.Add(Name, ID);
                 }
-                _manufacList.Add(Name);
-                ManufacDict.Add(Name, ID);
             }
         }
 
